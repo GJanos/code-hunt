@@ -10,9 +10,12 @@ set(IMGUI_SOURCES
         imgui_ui/imgui_tables.cpp
         imgui_ui/imgui_impl_glfw.cpp
         imgui_ui/imgui_impl_opengl3.cpp
-        )
+        CodeHunt.cpp CodeHunt.h)
 
-add_executable(nhf2 main.cpp ${IMGUI_SOURCES})
+add_executable(nhf2
+        main.cpp
+        ${IMGUI_SOURCES}
+        FileHandler.cpp Exception.cpp Exception.h)
 
 
 target_include_directories(nhf2 PRIVATE

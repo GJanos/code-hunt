@@ -4,15 +4,39 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#include "FileHandler.h"
+#include "Exception.h"
 
-void drawUserCodeSegment(float& y_position) {
-    static char user_code[2048] =
-            "/*** Necessary headers already included! ***/\n\n"
-            "int hunt(int x) {\n"
-            "   /* Write your solution \n"
-            "   inside this function */\n"
-            "}";
 
+void drawTitle() {
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 255, 255));
+    ImVec2 title_size = ImGui::CalcTextSize("Code Hunt");
+    ImGui::SetCursorPosX((800 - title_size.x) * 0.5f);
+    ImGui::TextUnformatted("Code Hunt");
+    ImGui::PopStyleColor();
+
+    // New components
+    ImGui::NewLine();
+
+    static char name[64] = "";  // Buffer to hold name
+
+    // Calculate center alignment for "Name:" and the input field
+    float center_pos = 800 * 0.5f;
+    float total_elements_width = ImGui::CalcTextSize("Name: ").x + 100;  // 70 for the input box
+    float starting_pos = center_pos - (total_elements_width * 0.5f);
+
+
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(109, 164, 252, 255));
+    ImGui::SetCursorPosX(starting_pos);
+    ImGui::Text("Name: ");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(100);  // Set input box width to 70 pixels
+    ImGui::InputText("##Name", name, sizeof(name));
+    ImGui::PopStyleColor();
+}
+
+
+void drawUserCodeSegment(float& y_position, char* user_code, size_t buffer_size) {
     ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
     ImVec2 user_code_size = ImGui::CalcTextSize("User Code");
     ImGui::SetCursorPosX((400 - user_code_size.x) * 0.5f);
@@ -20,7 +44,7 @@ void drawUserCodeSegment(float& y_position) {
     ImGui::PopStyleColor();
     y_position = ImGui::GetCursorPosY();
     ImGui::NewLine();
-    ImGui::InputTextMultiline("##UserCode", user_code, sizeof(user_code), ImVec2(400, 300), ImGuiInputTextFlags_AllowTabInput);
+    ImGui::InputTextMultiline("##UserCode", user_code, buffer_size, ImVec2(400, 300), ImGuiInputTextFlags_AllowTabInput);
 }
 
 void drawTestCasesSegment() {
@@ -49,19 +73,55 @@ void drawTestCasesSegment() {
     }
 }
 
-void drawHuntButton(float y_position) {
+void button_pressed(char* user_code, int player_score, bool& compilationSuccess, std::string& errorMessage){
+
+
+
+    try {
+        FileHandler f("../test.cpp");
+        f.write(user_code);
+        f.compile_user_code();
+        compilationSuccess = true;
+    } catch (const FileException& e) {
+        compilationSuccess = false;
+        errorMessage = "File Error: " + std::string(e.what());
+    } catch (const CompilationException& e) {
+        compilationSuccess = false;
+        errorMessage = "Compilation Error: " + std::string(e.what());
+    } catch (const std::exception& e) {
+        compilationSuccess = false;
+        errorMessage = "Unexpected Error: " + std::string(e.what());
+    }
+
+    if (!compilationSuccess) {
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));  // Red text
+        ImGui::Text("Error: %s", errorMessage.c_str());
+        ImGui::PopStyleColor();
+    }
+}
+
+void drawHuntButton(float y_position, char* user_code, int player_score, bool& compilationSuccess, std::string& errorMessage) {
     ImGui::SetCursorPosY(y_position + 50);
     ImGui::SetCursorPosX((400 - ImGui::CalcTextSize("HUNT").x) * 0.5f);
     ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(255, 0, 0, 255));
+    float buttonEndPosY = ImGui::GetCursorPosY();
     if (ImGui::Button("HUNT", ImVec2(100, 30))) {
-        // Add action for the button here
+        button_pressed(user_code, player_score, compilationSuccess, errorMessage);
     }
+    ImGui::PopStyleColor();
+    ImGui::SetCursorPosY(buttonEndPosY + 50);
+    ImGui::SetCursorPosX((400 - ImGui::CalcTextSize("Score: ").x) * 0.5f);
+
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(217, 101, 93, 255));
+    ImGui::Text("Score: ");
+    ImGui::SameLine();
+    ImGui::Text("%d", player_score);
     ImGui::PopStyleColor();
 }
 
 void drawLeaderboardTable(float y_position) {
 
-    ImGui::SetCursorPosY(y_position - 50);
+    ImGui::SetCursorPosY(y_position - 200);
     ImGui::SetCursorPosX((400 + (400 - ImGui::CalcTextSize("Leaderboard").x) * 0.5f));
     ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(219, 206, 15, 255));
     ImGui::TextUnformatted("Leaderboard");
@@ -104,7 +164,8 @@ int main(int argc, char **argv) {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
-
+    bool compilationSuccess = true;
+    std::string errorMessage;
 
     while (!glfwWindowShouldClose(window)) {
         // Initialization and Setup
@@ -120,11 +181,7 @@ int main(int argc, char **argv) {
         ImGui::Begin("Code Hunt", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
         // Main Title "Code Hunt"
-        ImVec2 title_size = ImGui::CalcTextSize("Code Hunt");
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 255, 255));
-        ImGui::SetCursorPosX((800 - title_size.x) * 0.5f);
-        ImGui::TextUnformatted("Code Hunt");
-        ImGui::PopStyleColor();
+        drawTitle();
 
         float mainTitleEndPosY = ImGui::GetCursorPosY();
 
@@ -132,7 +189,13 @@ int main(int argc, char **argv) {
 
         ImGui::SetCursorPosY(mainTitleEndPosY + 50);
         float userCodeStartPosY;
-        drawUserCodeSegment(userCodeStartPosY);  // Assume this function contains your User Code related widgets
+        static char user_code[2048] =
+                "/*** Necessary headers already included! ***/\n\n"
+                "int hunt(int x) {\n"
+                "    /* Write your solution \n"
+                "    inside this function */\n"
+                "}";
+        drawUserCodeSegment(userCodeStartPosY, user_code, sizeof(user_code));  // Assume this function contains your User Code related widgets
 
         float userCodeEndPosY = ImGui::GetCursorPosY();
 
@@ -143,11 +206,17 @@ int main(int argc, char **argv) {
 
 
         // Red Button below User Code
-        drawHuntButton(userCodeEndPosY);  // Assume this function draws your "HUNT" button
+        drawHuntButton(userCodeEndPosY, user_code, 100, compilationSuccess, errorMessage);  // Assume this function draws your "HUNT" button
         float buttonsEndPosY = ImGui::GetCursorPosY();
 
         // Leaderboard Table below Test Cases
         drawLeaderboardTable(buttonsEndPosY);  // Assume this function draws your Leaderboard table
+
+        if (!compilationSuccess) {
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));  // Red text
+            ImGui::Text("Error: %s", errorMessage.c_str());
+            ImGui::PopStyleColor();
+        }
 
         // Rendering
         ImGui::End();
@@ -175,8 +244,6 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-
-
 
 /*
  * Classes:
