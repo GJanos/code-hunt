@@ -4,9 +4,14 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include "FileHandler.h"
-#include "Exception.h"
+#include "file/FileHandler.h"
+#include "file/Exception.h"
+
 #include "CodeHunt.h"
+#include "Model.h"
+#include "View.h"
+
+using namespace gj;
 
 
 void drawTitle() {
@@ -147,181 +152,16 @@ void drawLeaderboardTable(float y_position) {
     }
 }
 
-
 int main(int argc, char **argv) {
-    // Initialize GLFW
-    if (!glfwInit())
-        return 1;
 
-    // Create a GLFW window
-    GLFWwindow *window = glfwCreateWindow(800, 600, "Code Hunt", NULL, NULL);
-    if (window == NULL)
-        return 1;
+    CodeHunt codeHunt;
+    Model model;
+    View view(800, 600, &model);
+    view.setButtonClickListener("HUNT", [&]() { codeHunt.onHuntButtonClicked(); });
+    codeHunt.addModel(&model);
+    codeHunt.addView(&view);
 
-    glfwMakeContextCurrent(window);
-
-    // Initialize ImGui
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 130");
-
-    bool compilationSuccess = true;
-    std::string errorMessage;
-
-
-    int window_width = 800, window_height = 600;
-
-    // make title and user name field
-    std::unique_ptr<IComposableElement> main_window = std::make_unique<Element>();
-
-    main_window->addLabel("Code Hunt",
-                          Attribute{
-                                  ImVec2{(window_width - 50) * 0.5f, 20},
-                                  Color{0, 0, 255, 255},
-                                  ImVec2{0, 0}});
-
-
-    main_window->addLabel("Name: ",
-                          Attribute{
-                                  ImVec2{(window_width - 70) * 0.5f, 40},
-                                  Color{109, 164, 252, 255},
-                                  ImVec2{0, 0}});
-
-    std::unique_ptr<IGuiElement> name_input =
-            std::make_unique<TextFieldElement>(
-                    "",
-                    Attribute{
-                            ImVec2{window_width * 0.5f + 20, 40},
-                            Color{109, 164, 252, 255},
-                            ImVec2{100, 20}});
-
-    main_window->addChildElement(std::move(name_input));
-
-    // make user code field and hunt button
-    std::unique_ptr<IComposableElement> user_code = std::make_unique<Element>();
-
-    user_code->addLabel("User Code",
-                        Attribute{
-                                ImVec2{(window_width/2 - 50) * 0.5f, 100},
-                                Color{0, 255, 0, 255},
-                                ImVec2{0, 0}});
-
-    std::unique_ptr<IGuiElement> user_code_input = std::make_unique<TextFieldElement>(
-            "/*** Necessary headers already included! ***/\n\n"
-            "int hunt(int x) {\n"
-            "    /* Write your solution \n"
-            "    inside this function */\n"
-            "}",
-            Attribute{
-                    ImVec2{10, 130},
-                    Color{255, 255, 255,255},
-                    ImVec2{380, 250}});
-
-    user_code->addChildElement(std::move(user_code_input));
-
-
-    main_window->addChildElement(std::move(user_code));
-    CodeHunt codeHunt(std::move(main_window));
-
-
-    while (!glfwWindowShouldClose(window)) {
-        // Initialization and Setup
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-        ImGuiIO &io = ImGui::GetIO();
-        io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
-
-        // Main Window
-        ImGui::SetNextWindowSize(ImVec2(800, 600));
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::Begin("Code Hunt", NULL,
-                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-//
-//        // Main Title "Code Hunt"
-//        drawTitle();
-//
-//        float mainTitleEndPosY = ImGui::GetCursorPosY();
-//
-//        // User Code Segment
-//
-//        ImGui::SetCursorPosY(mainTitleEndPosY + 50);
-//        float userCodeStartPosY;
-//        static char user_code[2048] =
-//                "/*** Necessary headers already included! ***/\n\n"
-//                "int hunt(int x) {\n"
-//                "    /* Write your solution \n"
-//                "    inside this function */\n"
-//                "}";
-//        drawUserCodeSegment(userCodeStartPosY, user_code, sizeof(user_code));  // Assume this function contains your User Code related widgets
-//
-//        float userCodeEndPosY = ImGui::GetCursorPosY();
-//
-//        // Test Cases Segment
-//
-//        ImGui::SetCursorPosY(userCodeStartPosY-15);
-//        drawTestCasesSegment();  // Assume this function contains your Test Cases related widgets
-//
-//
-//        // Red Button below User Code
-//        drawHuntButton(userCodeEndPosY, user_code, 100, compilationSuccess, errorMessage);  // Assume this function draws your "HUNT" button
-//        float buttonsEndPosY = ImGui::GetCursorPosY();
-//
-//        // Leaderboard Table below Test Cases
-//        drawLeaderboardTable(buttonsEndPosY);  // Assume this function draws your Leaderboard table
-//
-//        if (!compilationSuccess) {
-//            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));  // Red text
-//            ImGui::Text("Error: %s", errorMessage.c_str());
-//            ImGui::PopStyleColor();
-//        }
-//
-
-        codeHunt.start();
-
-        // Rendering
-        ImGui::End();
-        ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClear(GL_COLOR_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        // Swap buffers and poll events
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-
-
-
-    // Cleanup
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    codeHunt.start();
 
     return 0;
 }
-
-/*
- * Classes:
- * App
- *
- * Window
- *
- * AppWindow
- *
- * CodeInputWindow
- *
- * TestWindow
- *
- * EvaluateWindow
- *
- * InputFileHandler
- *
- *
- */

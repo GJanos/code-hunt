@@ -9,13 +9,22 @@ set(IMGUI_SOURCES
         imgui_ui/imgui_widgets.cpp
         imgui_ui/imgui_tables.cpp
         imgui_ui/imgui_impl_glfw.cpp
-        imgui_ui/imgui_impl_opengl3.cpp
-        CodeHunt.cpp CodeHunt.h)
+        imgui_ui/imgui_impl_opengl3.cpp)
+
+include_directories(${CMAKE_SOURCE_DIR}/control)
+include_directories(${CMAKE_SOURCE_DIR}/view)
+include_directories(${CMAKE_SOURCE_DIR}/model)
+include_directories(${CMAKE_SOURCE_DIR}/file)
 
 add_executable(nhf2
         main.cpp
         ${IMGUI_SOURCES}
-        FileHandler.cpp Exception.cpp Exception.h)
+        file/FileHandler.cpp
+        file/Exception.cpp
+        view/View.cpp
+        control/CodeHunt.cpp
+        model/Model.cpp
+        view/GUIElements.cpp)
 
 
 target_include_directories(nhf2 PRIVATE
