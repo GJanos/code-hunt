@@ -15,6 +15,7 @@ include_directories(${CMAKE_SOURCE_DIR}/control)
 include_directories(${CMAKE_SOURCE_DIR}/view)
 include_directories(${CMAKE_SOURCE_DIR}/model)
 include_directories(${CMAKE_SOURCE_DIR}/file)
+include_directories(${CMAKE_SOURCE_DIR}/level)
 
 add_executable(nhf2
         main.cpp
@@ -24,12 +25,13 @@ add_executable(nhf2
         view/View.cpp
         control/CodeHunt.cpp
         model/Model.cpp
-        view/GUIElements.cpp)
-
+        view/GUIElements.cpp
+        level/Level.cpp )
 
 target_include_directories(nhf2 PRIVATE
         imgui_ui)
 
 find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
-target_link_libraries(nhf2 PRIVATE glfw OpenGL::GL)
+target_link_libraries(nhf2 PRIVATE glfw OpenGL::GL ${CMAKE_DL_LIBS})
+

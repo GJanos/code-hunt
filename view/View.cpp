@@ -6,6 +6,7 @@ View::View(int w, int h, Model *m) :
         wWidth(w), wHeight(h), model(m) {
 
     buttons["HUNT"] = []() {};
+    errorBox = std::nullopt;
 
     std::unique_ptr<IGuiElement> title_label
             = std::make_unique<LabelElement>("Code Hunt",
@@ -41,11 +42,12 @@ View::View(int w, int h, Model *m) :
                                                      ImVec2{0, 0}});
     guiElements.push_back(std::move(user_code_label));
 
-    auto code = model->requestText("player_code", "/*** Necessary headers already included! ***/\n\n"
-                                                  "int hunt(int x) {\n"
-                                                  "    /* Write your solution \n"
-                                                  "    inside this function */\n"
-                                                  "}");
+    auto code = model->requestText("player_code",
+                                   "int hunt(int x) {\n"
+                                   "/* Necessary headers already included!\n"
+                                   "    Write your solution \n"
+                                   "    inside this function */\n"
+                                   "}");
     std::unique_ptr<IGuiElement> code_text = std::make_unique<TextFieldElement>(
             code,
             Attribute{
@@ -119,6 +121,7 @@ int View::update() {
         for (const auto &guiElement: guiElements) {
             guiElement->render();
         }
+        renderError();
 
         // Rendering
         ImGui::End();
@@ -146,4 +149,24 @@ int View::update() {
 void View::setButtonClickListener(const std::string &button_id, std::function<void()> onClick) {
     buttons[button_id] = std::move(onClick);
 }
+
+void View::renderError() {
+    auto error = model->getError();
+    if (error) {
+        setError(*error);
+        errorBox->get()->render();
+    } else {
+        errorBox = std::nullopt;
+    }
+}
+
+
+void View::setError(const std::string &error_msg) {
+    errorBox = std::make_unique<LabelElement>(error_msg,
+                                              Attribute{
+                                                      ImVec2{100, 470},
+                                                      ImVec4{255, 0, 0, 255},
+                                                      ImVec2{0, 0}});
+}
+
 

@@ -155,9 +155,15 @@ void drawLeaderboardTable(float y_position) {
 int main(int argc, char **argv) {
 
     CodeHunt codeHunt;
-    Model model;
+
+    Model model({
+                        {"Mul3", {{0, 0}, {1, 3}, {5, 15}, {34, 102}}},
+                        {"Div5Mul3", {{0, 0}, {5, 3}, {25, 15}, {45, 27}}}
+                });
+
     View view(800, 600, &model);
     view.setButtonClickListener("HUNT", [&]() { codeHunt.onHuntButtonClicked(); });
+
     codeHunt.addModel(&model);
     codeHunt.addView(&view);
 

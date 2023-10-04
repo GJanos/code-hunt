@@ -16,6 +16,7 @@
 
 
 namespace gj {
+    typedef int (*UserFuncType)(int);
 
     class CodeHunt {
     private:
@@ -33,6 +34,7 @@ namespace gj {
         void addView(View *view);
 
         void onHuntButtonClicked();
+
     };
 }
 
