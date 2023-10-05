@@ -7,7 +7,9 @@
 #include <vector>
 #include <set>
 #include <optional>
-#include "Level.h"
+
+#include "LevelEvaluator.h"
+#include "Leaderboard.h"
 
 namespace gj {
     using TextType = std::shared_ptr<std::array<char, 1024>>;
@@ -20,11 +22,11 @@ namespace gj {
 
         TextType getText(const std::string &key);
 
-        std::vector<Level>& getLevels();
-
         std::shared_ptr<int> getPlayerScore();
 
         void setPlayerScore(int score);
+
+        void addScore(int score);
 
         std::string getPlayerName();
 
@@ -38,6 +40,20 @@ namespace gj {
 
         std::optional<std::string> getError() const;
 
+        std::optional<std::pair<int, bool>> evaluateLevels();
+
+        void setUserFunc(UserFuncType user_func);
+
+        std::shared_ptr<EvaluationsType> getEvaluations();
+
+        void setLeaderboard(std::unique_ptr<Leaderboard>&& leaderboard);
+
+        std::unique_ptr<Leaderboard>& getLeaderboard();
+
+        int getLevelCount() const;
+
+        std::shared_ptr<int> getCurrentLevel();
+
     private:
         class TextManager {
         public:
@@ -49,40 +65,19 @@ namespace gj {
             std::unordered_map<std::string, TextType> texts;
         };
 
-        struct Evaluation {
-            const bool passed;
-            const int user_input;
-            const int expected_output;
-            const int actual_output;
-
-            Evaluation(bool passed, int user_input, int expected_output, int actual_output);
-        };
-
-        constexpr static const auto cmp = [](const Evaluation& a, const Evaluation& b) -> bool {
-            if(a.passed == b.passed) {
-                return a.user_input < b.user_input;
-            }
-            return a.passed < b.passed;
-        };
-
     private:
         std::optional<std::string> error_message;
         std::string user_func_name;
         std::string pre_included_headers;
+
         std::unique_ptr<TextManager> textManager;
+        std::unique_ptr<LevelEvaluator> levelEvaluator;
+
         std::shared_ptr<int> player_score;
         std::string player_name;
-        int num_of_tries;
-        std::vector<Level> levels;
-        int current_level;
 
-        std::set<Evaluation, decltype(cmp)> evaluations;
-
-
-        //leaderboards later
+        std::unique_ptr<Leaderboard> leaderboard;
 
     };
 
 } // namespace gj
-
-

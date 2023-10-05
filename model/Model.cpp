@@ -5,11 +5,9 @@ using namespace gj;
 Model::Model(std::initializer_list<Level> init_levels) :
         error_message(std::nullopt),
         user_func_name("hunt"),
-        levels(init_levels),
+        levelEvaluator(std::make_unique<LevelEvaluator>(init_levels)),
         player_score(std::make_shared<int>(0)),
-        player_name("Player"),
-        num_of_tries(0),
-        current_level(0) {
+        player_name("Player"){
     textManager = std::make_unique<TextManager>();
     pre_included_headers = R"(
 #include <string>
@@ -61,8 +59,36 @@ std::string Model::getPreIncludedHeaders() {
     return pre_included_headers;
 }
 
-std::vector<Level> &Model::getLevels() {
-    return levels;
+std::optional<std::pair<int, bool>> Model::evaluateLevels() {
+    return levelEvaluator->evaluateLevel();
+}
+
+void Model::setUserFunc(UserFuncType user_func) {
+    levelEvaluator->setUserFunc(user_func);
+}
+
+std::shared_ptr<EvaluationsType> Model::getEvaluations() {
+    return levelEvaluator->getEvaluations();
+}
+
+void Model::addScore(int score) {
+    *player_score += score;
+}
+
+void Model::setLeaderboard(std::unique_ptr<Leaderboard> &&leaderboard) {
+    this->leaderboard = std::move(leaderboard);
+}
+
+std::unique_ptr<Leaderboard> &Model::getLeaderboard() {
+    return leaderboard;
+}
+
+int Model::getLevelCount() const {
+    return levelEvaluator->getLevelCount();
+}
+
+std::shared_ptr<int> Model::getCurrentLevel() {
+    return levelEvaluator->getCurrentLevel();
 }
 
 TextType Model::TextManager::requestText(const std::string &key, const std::string &default_text) {
@@ -74,7 +100,3 @@ TextType Model::TextManager::requestText(const std::string &key, const std::stri
 TextType Model::TextManager::getText(const std::string &key) {
     return texts.at(key);
 }
-
-Model::Evaluation::Evaluation(bool passed, int user_input, int expected_output, int actual_output)
-        : passed(passed), user_input(user_input), expected_output(expected_output),
-          actual_output(actual_output) {}

@@ -5,23 +5,34 @@
 #include <iostream>
 #include <dlfcn.h>
 #include <iostream>
+#include <regex>
+
 
 #include "Exception.h"
+
 
 using namespace gj;
 
 FileHandler::FileHandler(std::string file_name) : file_name(std::move(file_name)), _file(this->file_name) {
     if (!_file.is_open()) {
-        throw FileException("File could not be opened");
+        throw FileException("File:" + this->file_name + "could not be opened");
     }
 }
 
 void FileHandler::write(const std::string &data) {
+    validate_user_code(data);
     std::ofstream file(file_name);
     file << data;
     file.close();
+
 }
 
+void FileHandler::validate_user_code(const std::string& data) {
+    std::regex return_pattern("return .+;");
+    if (!std::regex_search(data, return_pattern)) {
+        throw ReturnStatementMissingException("!");
+    }
+}
 std::string FileHandler::read() {
     std::ifstream file(file_name);
     std::string data;
@@ -85,5 +96,41 @@ CompilationResult FileHandler::getUserFunction(const std::string &user_typed_cod
     } catch (const std::exception &e) {
         return {e.what(), nullptr};
     }
-
 }
+
+void FileHandler::writeLBToFile(const std::unique_ptr<Leaderboard> &leaderboard) {
+    std::ofstream outfile("../leaderboard.txt");
+    if (!outfile.is_open()) {
+        throw FileException("File: leaderboard.txt could not be opened");
+    }
+
+    for (const auto &score: *leaderboard->getScores()) {
+        outfile << score.player_name << " " << score.score << std::endl;
+        if (!outfile) {
+            throw FileException("Error occurred while writing to leaderboard.txt");
+        }
+    }
+
+    outfile.close();
+}
+
+std::unique_ptr<Leaderboard> FileHandler::readLBFromFile() {
+    std::ifstream infile("../leaderboard.txt");
+    if (!infile.is_open()) {
+        throw FileException("File: leaderboard.txt could not be opened");
+    }
+
+    auto leaderboard = std::make_unique<Leaderboard>(5);
+    std::string player_name;
+    int score;
+    while (infile >> player_name >> score) {
+        leaderboard->addScore({score, player_name});
+        if (!infile) {
+            throw FileException("Error occurred while reading from leaderboard.txt");
+        }
+    }
+
+    infile.close();
+    return leaderboard;
+}
+

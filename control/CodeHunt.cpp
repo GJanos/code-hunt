@@ -16,6 +16,7 @@ void CodeHunt::start() {
 
 void CodeHunt::addModel(Model *model) {
     this->model = model;
+    this->model->setLeaderboard(std::move(fileHandler->readLBFromFile()));
 }
 
 void CodeHunt::addView(View *view) {
@@ -32,17 +33,18 @@ void CodeHunt::onHuntButtonClicked() {
     model->setError(error);
     if (error) return;
 
-    /// todo 0 to be changed to current level
-    for (auto [input, expected]: model->getLevels()[0].cases) {
-        auto actual = func(input);
-        std::cout << "input: " << input
-                  << " expected: " << expected
-                  << " actual: " << actual
-                  << std::endl;
+
+    model->setUserFunc(func);
+    auto score = model->evaluateLevels();
+    if (score) {
+        if (score.value().first != -1)
+            model->addScore(score.value().first);
+        if (score.value().second) {
+            model->setError("You have completed all levels!");
+            model->getLeaderboard()->addScore({*model->getPlayerScore(), model->getPlayerName()});
+            fileHandler->writeLBToFile(model->getLeaderboard());
+        }
     }
-
-
-    model->setPlayerScore(*(model->getPlayerScore()) + 1);
 
 
     dlclose(handle);

@@ -19,7 +19,7 @@ View::View(int w, int h, Model *m) :
     std::unique_ptr<IGuiElement> name_label
             = std::make_unique<LabelElement>("Name: ",
                                              Attribute{
-                                                     ImVec2{(wWidth - 70) * 0.5f, 40},
+                                                     ImVec2{(wWidth - 70) * 0.5f, 60},
                                                      ImVec4{109, 164, 252, 255},
                                                      ImVec2{0, 0}});
     guiElements.push_back(std::move(name_label));
@@ -29,7 +29,7 @@ View::View(int w, int h, Model *m) :
             std::make_unique<TextFieldElement>(
                     name,
                     Attribute{
-                            ImVec2{wWidth * 0.5f + 20, 40},
+                            ImVec2{wWidth * 0.5f + 20, 60},
                             ImVec4{109, 164, 252, 255},
                             ImVec2{100, 20}});
     guiElements.push_back(std::move(name_text));
@@ -81,6 +81,56 @@ View::View(int w, int h, Model *m) :
                                                      ImVec4{217, 101, 93, 255},
                                                      ImVec2{0, 0}});
     guiElements.push_back(std::move(score_text));
+
+    std::unique_ptr<IGuiElement> test_label
+            = std::make_unique<LabelElement>("Test cases",
+                                             Attribute{
+                                                     ImVec2{(wWidth + 300) * 0.5f, 100},
+                                                     ImVec4{255, 165, 0, 255},
+                                                     ImVec2{0, 0}});
+    guiElements.push_back(std::move(test_label));
+
+    std::unique_ptr<IGuiElement> test_table
+            = std::make_unique<TestTableElement>(model->getEvaluations(),
+                                                 Attribute{
+                                                         ImVec2{(wWidth + 100) * 0.5f, 130},
+                                                         ImVec4{0, 0, 0, 0},
+                                                         ImVec2{300, 200}});
+    guiElements.push_back(std::move(test_table));
+
+    std::unique_ptr<IGuiElement> leaderboard_label
+            = std::make_unique<LabelElement>("Leaderboard",
+                                             Attribute{
+                                                     ImVec2{(wWidth + 300) * 0.5f, 400},
+                                                     ImVec4{219, 206, 15, 255},
+                                                     ImVec2{0, 0}});
+    guiElements.push_back(std::move(leaderboard_label));
+
+    std::unique_ptr<IGuiElement> leaderboard_table
+            = std::make_unique<LBTableElement>(model->getLeaderboard()->getScores(),
+                                                        Attribute{
+                                                                ImVec2{(wWidth + 100) * 0.5f, 430},
+                                                                ImVec4{0, 0, 0, 0},
+                                                                ImVec2{300, 100}});
+    guiElements.push_back(std::move(leaderboard_table));
+
+
+    std::unique_ptr<IGuiElement> level_label
+            = std::make_unique<LabelElement>("Level: " + std::to_string(model->getLevelCount()) + " / ",
+                                             Attribute{
+                                                     ImVec2{(wWidth / 2 - 100) * 0.5f, 470},
+                                                     ImVec4{3, 252, 177, 255},
+                                                     ImVec2{0, 0}});
+    guiElements.push_back(std::move(level_label));
+
+    std::unique_ptr<IGuiElement> curr_level_text
+            = std::make_unique<ScoreElement>(model->getCurrentLevel(),
+                                             Attribute{
+                                                     ImVec2{(wWidth / 2 + 50) * 0.5f, 470},
+                                                     ImVec4{3, 252, 177, 255},
+                                                     ImVec2{0, 0}});
+    guiElements.push_back(std::move(curr_level_text));
+
 }
 
 int View::update() {
@@ -164,7 +214,7 @@ void View::renderError() {
 void View::setError(const std::string &error_msg) {
     errorBox = std::make_unique<LabelElement>(error_msg,
                                               Attribute{
-                                                      ImVec2{100, 470},
+                                                      ImVec2{100, 500},
                                                       ImVec4{255, 0, 0, 255},
                                                       ImVec2{0, 0}});
 }

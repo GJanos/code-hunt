@@ -61,3 +61,69 @@ void ScoreElement::render() {
     ImGui::Text("%d", *player_score);
     ImGui::PopStyleColor();
 }
+
+TestTableElement::TestTableElement(std::shared_ptr<std::set<Evaluation, decltype(cmp_eval)>> eval,
+                                   Attribute attr)
+        : evaluations(std::move(eval)), attr(attr) {}
+
+
+void TestTableElement::render() {
+    ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
+
+    ImGui::SetCursorPos(attr.coord);
+    if (ImGui::BeginTable("##TestCases", 4, flags, attr.size)) {
+        ImGui::TableSetupColumn("Passed");
+        ImGui::TableSetupColumn("Test");
+        ImGui::TableSetupColumn("Expected");
+        ImGui::TableSetupColumn("Actual");
+        ImGui::TableHeadersRow();
+
+        for (const auto &eval: *evaluations) {
+            ImGui::TableNextRow();
+
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("%s", eval.passed ? "True" : "False");
+
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%d", eval.user_input);
+
+            ImGui::TableSetColumnIndex(2);
+            ImGui::Text("%d", eval.expected_output);
+
+            ImGui::TableSetColumnIndex(3);
+            ImGui::Text("%d", eval.actual_output);
+        }
+        ImGui::EndTable();
+    }
+}
+
+
+LBTableElement::LBTableElement(std::shared_ptr<std::vector<Score>> curr_best_scores, Attribute attr) :
+        curr_best_scores(std::move(curr_best_scores)), attr(attr) {}
+
+
+void LBTableElement::render() {
+    ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
+
+    ImGui::SetCursorPos(attr.coord);
+    if (ImGui::BeginTable("##Leaderboard", 4, flags, attr.size)) {
+        ImGui::TableSetupColumn("Rank");
+        ImGui::TableSetupColumn("Name");
+        ImGui::TableSetupColumn("Score");
+        ImGui::TableHeadersRow();
+
+        for (int i = 0; i < curr_best_scores->size(); ++i) {
+            ImGui::TableNextRow();
+
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("%d", i + 1);
+
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%s", curr_best_scores->at(i).player_name.c_str());
+
+            ImGui::TableSetColumnIndex(2);
+            ImGui::Text("%d", curr_best_scores->at(i).score);
+        }
+        ImGui::EndTable();
+    }
+}

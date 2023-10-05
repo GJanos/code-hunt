@@ -28,3 +28,11 @@ const char *UserFuncNotFoundException::what() const noexcept {
     return message.c_str();
 }
 
+ReturnStatementMissingException::ReturnStatementMissingException(const std::string &msg) :
+        message("Return Statement Missing Error" + msg) {
+
+}
+
+const char *ReturnStatementMissingException::what() const noexcept {
+    return message.c_str();
+}

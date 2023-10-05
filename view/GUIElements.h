@@ -8,6 +8,9 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#include "LevelEvaluator.h"
+#include "Leaderboard.h"
+
 
 namespace gj {
 
@@ -76,12 +79,24 @@ namespace gj {
         void render() override;
     };
 
-    /// todo make it
-    class TableElement : public IGuiElement {
+
+    class TestTableElement : public IGuiElement {
+        std::shared_ptr<EvaluationsType> evaluations;
+        Attribute attr;
     public:
-        void render() override {
-            // Text field specific functionality
-        }
+        TestTableElement(std::shared_ptr<EvaluationsType> eval, Attribute attr);
+
+        void render() override;
+    };
+
+
+    class LBTableElement : public IGuiElement {
+        std::shared_ptr<std::vector<Score>> curr_best_scores;
+        Attribute attr;
+    public:
+        LBTableElement(std::shared_ptr<std::vector<Score>> curr_best_scores, Attribute attr);
+
+        void render() override;
     };
 }
 

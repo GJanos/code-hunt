@@ -2,6 +2,9 @@
 
 #include <fstream>
 #include <optional>
+#include <vector>
+
+#include "Leaderboard.h"
 
 namespace gj {
     typedef int (*UserFuncType)(int);
@@ -21,11 +24,17 @@ namespace gj {
 
         std::string read();
 
+        void validate_user_code(const std::string &data);
+
         void compile_user_code();
 
         UserFuncType fetchUserFunction(void*& handle);
 
         CompilationResult getUserFunction(const std::string &user_typed_code, void *&handle);
+
+        void writeLBToFile(const std::unique_ptr<Leaderboard>& leaderboard);
+
+        std::unique_ptr<Leaderboard> readLBFromFile();
 
         ~FileHandler();
 

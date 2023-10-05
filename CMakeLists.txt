@@ -26,7 +26,9 @@ add_executable(nhf2
         control/CodeHunt.cpp
         model/Model.cpp
         view/GUIElements.cpp
-        level/Level.cpp )
+        level/Level.cpp
+        level/LevelEvaluator.cpp
+        level/ScoreCalculator.cpp model/Leaderboard.cpp model/Leaderboard.h)
 
 target_include_directories(nhf2 PRIVATE
         imgui_ui)

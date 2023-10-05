@@ -34,3 +34,11 @@ public:
     explicit UserFuncNotFoundException(const std::string& msg);
     const char* what() const noexcept override;
 };
+
+class ReturnStatementMissingException : public std::exception {
+private:
+    std::string message;
+public:
+    explicit ReturnStatementMissingException(const std::string& msg);
+    const char* what() const noexcept override;
+};
