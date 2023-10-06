@@ -9,7 +9,6 @@ CodeHunt::CodeHunt() : model(nullptr), view(nullptr) {
     fileHandler = std::make_unique<FileHandler>("../test.cpp");
 }
 
-
 void CodeHunt::start() {
     view->update();
 }
@@ -30,9 +29,8 @@ void CodeHunt::onHuntButtonClicked() {
     void *handle;
     std::string complete_code = model->getPreIncludedHeaders() + user_typed_code;
     auto [error, func] = fileHandler->getUserFunction(complete_code, handle);
-    model->setError(error);
+    model->setMessage(error);
     if (error) return;
-
 
     model->setUserFunc(func);
     auto score = model->evaluateLevels();
@@ -40,12 +38,11 @@ void CodeHunt::onHuntButtonClicked() {
         if (score.value().first != -1)
             model->addScore(score.value().first);
         if (score.value().second) {
-            model->setError("You have completed all levels!");
+            model->setMessage("You have completed all levels!");
             model->getLeaderboard()->addScore({*model->getPlayerScore(), model->getPlayerName()});
             fileHandler->writeLBToFile(model->getLeaderboard());
         }
     }
-
 
     dlclose(handle);
 }

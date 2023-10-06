@@ -1,12 +1,6 @@
 #pragma once
 
-#include <array>
-#include <memory>
-#include <cstring>
 #include <unordered_map>
-#include <vector>
-#include <set>
-#include <optional>
 
 #include "LevelEvaluator.h"
 #include "Leaderboard.h"
@@ -24,19 +18,15 @@ namespace gj {
 
         std::shared_ptr<int> getPlayerScore();
 
-        void setPlayerScore(int score);
-
         void addScore(int score);
 
         std::string getPlayerName();
 
         void setPlayerName(std::string name);
 
-        std::string getUserFuncName();
-
         std::string getPreIncludedHeaders();
 
-        void setError(const std::optional<std::string>& error);
+        void setMessage(const std::optional<std::string> &error);
 
         std::optional<std::string> getError() const;
 
@@ -46,9 +36,9 @@ namespace gj {
 
         std::shared_ptr<EvaluationsType> getEvaluations();
 
-        void setLeaderboard(std::unique_ptr<Leaderboard>&& leaderboard);
+        void setLeaderboard(std::unique_ptr<Leaderboard> &&leaderboard);
 
-        std::unique_ptr<Leaderboard>& getLeaderboard();
+        std::unique_ptr<Leaderboard> &getLeaderboard();
 
         int getLevelCount() const;
 
@@ -77,7 +67,6 @@ namespace gj {
         std::string player_name;
 
         std::unique_ptr<Leaderboard> leaderboard;
-
     };
 
 } // namespace gj

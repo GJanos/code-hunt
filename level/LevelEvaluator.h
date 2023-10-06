@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include <set>
 #include <memory>
 #include "Level.h"
@@ -9,11 +8,10 @@
 
 namespace gj {
 
-    /// todo talan egy kozos headerbe a typeokat kiszervezni
     typedef int (*UserFuncType)(int);
 
-    constexpr inline const auto cmp_eval = [](const Evaluation& a, const Evaluation& b) -> bool {
-        if(a.passed == b.passed) {
+    constexpr inline const auto cmp_eval = [](const Evaluation &a, const Evaluation &b) -> bool {
+        if (a.passed == b.passed) {
             return a.user_input < b.user_input;
         }
         return a.passed > b.passed;
@@ -26,7 +24,6 @@ namespace gj {
 
         LevelEvaluator(std::initializer_list<Level> init_levels);
 
-        /// return optional score
         std::optional<std::pair<int, bool>> evaluateLevel();
 
         void setUserFunc(UserFuncType user_func);

@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <optional>
-#include <vector>
 
 #include "Leaderboard.h"
 

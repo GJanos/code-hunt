@@ -12,14 +12,6 @@
 namespace gj {
 
     class View {
-        const int wWidth, wHeight;
-
-        std::vector<std::unique_ptr<IGuiElement>> guiElements;
-        std::unordered_map<std::string, std::function<void()>> buttons;
-        std::optional<std::unique_ptr<IGuiElement>> errorBox;
-
-        Model *model;
-
 
     public:
         View(int w, int h, Model *m);
@@ -31,7 +23,16 @@ namespace gj {
         void setError(const std::string &error_msg);
 
     private:
+
         void renderError();
+
+        const int wWidth, wHeight;
+
+        std::vector<std::unique_ptr<IGuiElement>> guiElements;
+        std::unordered_map<std::string, std::function<void()>> buttons;
+        std::optional<std::unique_ptr<IGuiElement>> errorBox;
+
+        Model *model;
     };
 
 }

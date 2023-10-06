@@ -47,6 +47,8 @@ View::View(int w, int h, Model *m) :
                                    "/* Necessary headers already included!\n"
                                    "    Write your solution \n"
                                    "    inside this function */\n"
+                                   "    \n"
+                                   "    \n"
                                    "}");
     std::unique_ptr<IGuiElement> code_text = std::make_unique<TextFieldElement>(
             code,
@@ -108,10 +110,10 @@ View::View(int w, int h, Model *m) :
 
     std::unique_ptr<IGuiElement> leaderboard_table
             = std::make_unique<LBTableElement>(model->getLeaderboard()->getScores(),
-                                                        Attribute{
-                                                                ImVec2{(wWidth + 100) * 0.5f, 430},
-                                                                ImVec4{0, 0, 0, 0},
-                                                                ImVec2{300, 100}});
+                                               Attribute{
+                                                       ImVec2{(wWidth + 100) * 0.5f, 430},
+                                                       ImVec4{0, 0, 0, 0},
+                                                       ImVec2{300, 100}});
     guiElements.push_back(std::move(leaderboard_table));
 
 

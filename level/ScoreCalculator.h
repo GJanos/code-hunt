@@ -10,7 +10,9 @@ namespace gj {
 
         struct Timer {
             TimeType start_time;
+
             void start();
+
             DurationType stop();
         };
 

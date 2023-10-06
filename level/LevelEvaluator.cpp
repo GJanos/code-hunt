@@ -9,8 +9,7 @@ LevelEvaluator::LevelEvaluator(std::initializer_list<Level> init_levels) :
         levels(init_levels), current_level(std::make_shared<int>(0)),
         evaluations(std::make_shared<EvaluationsType>()),
         user_func(nullptr),
-        calc(){
-
+        calc() {
 }
 
 std::optional<std::pair<int, bool>> LevelEvaluator::evaluateLevel() {
@@ -30,17 +29,17 @@ std::optional<std::pair<int, bool>> LevelEvaluator::evaluateLevel() {
 
     if (level_passed) {
         *current_level = *current_level + 1;
-
+        evaluations->clear();
         bool all_levels_completed = (*current_level == levels.size());
         return std::make_optional(std::make_pair(calc.calculate_score(), all_levels_completed));
     }
 
-    return std::make_optional(std::make_pair(calc.calculate_score(), false));
+    return std::make_optional(std::make_pair(0, false));
 }
 
 void LevelEvaluator::evaluateCurrentLevel() {
     evaluations->clear();
-    for (const auto& [input, expected] : levels[*current_level].cases) {
+    for (const auto &[input, expected]: levels[*current_level].cases) {
         int actual = user_func(input);
         bool passed = (actual == expected);
         evaluations->insert(Evaluation(passed, input, expected, actual));
@@ -49,7 +48,7 @@ void LevelEvaluator::evaluateCurrentLevel() {
 
 bool LevelEvaluator::isCurrentLevelPassed() const {
     return std::all_of(evaluations->begin(), evaluations->end(),
-                       [](const Evaluation& e) { return e.passed; });
+                       [](const Evaluation &e) { return e.passed; });
 }
 
 

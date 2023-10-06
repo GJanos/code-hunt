@@ -2,11 +2,8 @@
 
 #include <unistd.h>
 #include <sys/wait.h>
-#include <iostream>
 #include <dlfcn.h>
-#include <iostream>
 #include <regex>
-
 
 #include "Exception.h"
 
@@ -64,7 +61,6 @@ void FileHandler::compile_user_code() {
         waitpid(pid, &status, 0);  // Wait for the child process to exit
         if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
             // Compilation succeeded
-            std::cout << "Compilation succeeded" << std::endl;
         } else {
             throw CompilationException("Compilation failed");
         }
@@ -116,11 +112,11 @@ void FileHandler::writeLBToFile(const std::unique_ptr<Leaderboard> &leaderboard)
 
 std::unique_ptr<Leaderboard> FileHandler::readLBFromFile() {
     std::ifstream infile("../leaderboard.txt");
+    auto leaderboard = std::make_unique<Leaderboard>(5);
     if (!infile.is_open()) {
-        throw FileException("File: leaderboard.txt could not be opened");
+        return leaderboard;
     }
 
-    auto leaderboard = std::make_unique<Leaderboard>(5);
     std::string player_name;
     int score;
     while (infile >> player_name >> score) {
@@ -129,7 +125,6 @@ std::unique_ptr<Leaderboard> FileHandler::readLBFromFile() {
             throw FileException("Error occurred while reading from leaderboard.txt");
         }
     }
-
     infile.close();
     return leaderboard;
 }

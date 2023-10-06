@@ -1,3 +1,4 @@
+#include <cstring>
 #include "Model.h"
 
 using namespace gj;
@@ -7,7 +8,7 @@ Model::Model(std::initializer_list<Level> init_levels) :
         user_func_name("hunt"),
         levelEvaluator(std::make_unique<LevelEvaluator>(init_levels)),
         player_score(std::make_shared<int>(0)),
-        player_name("Player"){
+        player_name("Player") {
     textManager = std::make_unique<TextManager>();
     pre_included_headers = R"(
 #include <string>
@@ -31,10 +32,6 @@ std::shared_ptr<int> Model::getPlayerScore() {
     return player_score;
 }
 
-void Model::setPlayerScore(int score) {
-    *player_score = score;
-}
-
 std::string Model::getPlayerName() {
     return player_name;
 }
@@ -43,16 +40,12 @@ void Model::setPlayerName(std::string name) {
     player_name = std::move(name);
 }
 
-void Model::setError(const std::optional<std::string> &error) {
+void Model::setMessage(const std::optional<std::string> &error) {
     error_message = error;
 }
 
 std::optional<std::string> Model::getError() const {
     return error_message;
-}
-
-std::string Model::getUserFuncName() {
-    return user_func_name;
 }
 
 std::string Model::getPreIncludedHeaders() {

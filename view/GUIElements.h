@@ -1,9 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
-#include <iostream>
 #include <functional>
-#include <memory>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -46,7 +44,7 @@ namespace gj {
     class ButtonElement : public IGuiElement {
     public:
         ButtonElement(std::string button_txt, Attribute attr,
-                               std::function<void()> onClick);
+                      std::function<void()> onClick);
 
         void render() override;
 
@@ -62,6 +60,7 @@ namespace gj {
         TextFieldElement(TextType label_content, const Attribute &attr);
 
         void render() override;
+
     private:
         TextType label_content;
         Attribute attr;
