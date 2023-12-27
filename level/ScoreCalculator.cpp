@@ -20,7 +20,6 @@ int ScoreCalculator::calculate_score() {
     auto duration = timer.stop();
     int units = duration.count() / 10;
     int score = max_score - ((units * 5) + ((num_of_tries - 1) * 10));
-    std::cout << num_of_tries << "\n";
     num_of_tries = 0;
     timer.start();
     return score < min_score ? min_score : score;
